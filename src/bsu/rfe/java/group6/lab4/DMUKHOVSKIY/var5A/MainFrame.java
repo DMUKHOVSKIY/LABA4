@@ -3,19 +3,8 @@ package bsu.rfe.java.group6.lab4.DMUKHOVSKIY.var5A;
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
+import java.io.*;
+import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
@@ -28,11 +17,13 @@ public class MainFrame extends JFrame {
     // Пункты меню
     private JCheckBoxMenuItem showAxisMenuItem;
     private JCheckBoxMenuItem showMarkersMenuItem;
+    private JMenuItem openGraphic;
     // Компонент-отображатель графика
     private GraphicsDisplay display = new GraphicsDisplay();
     // Флаг, указывающий на загруженность данных графика
     private boolean fileLoaded = false;
-    
+    // Флаг, указывающий на существование файла с координатами
+    private boolean fileCoordinates = false;
 
     public MainFrame() {
 // Вызов конструктора предка Frame
@@ -62,8 +53,20 @@ public class MainFrame extends JFrame {
                         JFileChooser.APPROVE_OPTION) openGraphics(fileChooser.getSelectedFile());
             }
         };
-// Добавить соответствующий элемент меню
-        fileMenu.add(openGraphicsAction);
+// Создать и добавить соответствующий элемент меню
+        openGraphic= new JMenuItem(openGraphicsAction);
+        fileMenu.add(openGraphic);
+//Создать действие по записи координат
+        Action generateCoordinates = new AbstractAction("Сгенерировать координаты") {
+            public void actionPerformed(ActionEvent event) {
+// Запросить пользователя ввести строку координат
+                String value = JOptionPane.showInputDialog(MainFrame.this, "Введите координаты",
+                        "Файл с координатами", JOptionPane.QUESTION_MESSAGE);
+                inputCoordinates(value);
+            }
+        };
+        fileMenu.add(generateCoordinates);
+
         // Создать пункт меню "График"
         JMenu graphicsMenu = new JMenu("График");
         menuBar.add(graphicsMenu);
@@ -95,6 +98,26 @@ public class MainFrame extends JFrame {
         graphicsMenu.addMenuListener(new GraphicsMenuListener());
 // Установить GraphicsDisplay в цент граничной компоновки
         getContentPane().add(display, BorderLayout.CENTER);
+    }
+
+// Запись файла с координатами
+    protected void inputCoordinates(String value) {
+        try (DataOutputStream out = new DataOutputStream(new FileOutputStream("Coordinates"))) {
+            String[] subStr;
+            String delimeter = " "; // Разделитель
+            subStr = value.split(delimeter); // Разделения строки str с помощью метода split()
+            // Посимвольно записать строку в файл
+            for (int i = 0; i < subStr.length; i++) {
+                // Предварительно преобразовать символ в байт
+                out.writeDouble(Byte.parseByte(subStr[i]));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //Установить флаг загруженных данных(координат)
+        fileCoordinates=true;
     }
 
     // Считывание данных графика из существующего файла
@@ -140,8 +163,6 @@ Double.SIZE/8 байт;
             JOptionPane.showMessageDialog(MainFrame.this, "Ошибка чтения координат точек из файла", "Ошибка загрузки данных",
                     JOptionPane.WARNING_MESSAGE);
             return;
-
-
         }
     }
 
@@ -152,6 +173,8 @@ Double.SIZE/8 байт;
 // Доступность или недоступность элементов меню "График" определяется загруженностью данных
             showAxisMenuItem.setEnabled(fileLoaded);
             showMarkersMenuItem.setEnabled(fileLoaded);
+//Доступность или недоступность элемена "Меню"("Открыть файл с графиком") определяется загруженностью координат
+            openGraphic.setEnabled(fileCoordinates);
         }
 
         // Обработчик, вызываемый после того, как меню исчезло с экрана
