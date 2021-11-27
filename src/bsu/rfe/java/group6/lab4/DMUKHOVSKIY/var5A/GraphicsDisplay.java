@@ -41,7 +41,7 @@ public class GraphicsDisplay extends JPanel {
         setBackground(Color.WHITE);
 // Сконструировать необходимые объекты, используемые в рисовании
 // Перо для рисования графика
-        graphicsStroke = new BasicStroke(5.0f, BasicStroke.CAP_BUTT,
+        graphicsStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT,
                 BasicStroke.JOIN_ROUND, 10.0f, new float[]{4, 1, 2, 1, 1, 1, 2, 1, 4}, 0.0f);
 // Перо для рисования осей координат
         axisStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT,
@@ -201,7 +201,7 @@ minY
         canvas.setStroke(markerStroke);
         for (Double[] part : graphicsData)
 // Если сумма цифр в записи целой часьти значения функции в точке меньше десятси
-            if (sumOfDigits(part[1])<10) {
+            if (sumOfDigits(part[1]) < 10) {
                 // Выделяем точку синим цветом
                 // Закрашеваем точку синим цветом
                 canvas.setColor(Color.BLUE);
@@ -211,24 +211,20 @@ minY
                 canvas.setColor(Color.RED);
 // Выбрать красный цвет для закрашивания маркеров внутри
                 canvas.setPaint(Color.RED);
-// Шаг 2 - Организовать цикл по всем точкам графика
-                for (Double[] point : graphicsData) {
-// Инициализировать эллипс как объект для представления маркера
-                    Ellipse2D.Double marker = new Ellipse2D.Double();
-/* Эллипс будет задаваться посредством указания координат
-его центра
-и угла прямоугольника, в который он вписан */
-// Центр - в точке (x,y)
-                    Point2D.Double center = xyToPoint(point[0], point[1]);
-// Угол прямоугольника - отстоит на расстоянии (3,3)
-                    Point2D.Double corner = shiftPoint(center, 3, 3);
-// Задать эллипс по центру и диагонали
-                    marker.setFrameFromCenter(center, corner);
-                    canvas.draw(marker); // Начертить контур маркера
-                    canvas.fill(marker); // Залить внутреннюю область маркера
-                }
             }
+// Шаг 2 - Организовать цикл по всем точкам графика
+        for (Double[] point : graphicsData) {
+            GeneralPath triangle = new GeneralPath();
+            Point2D.Double center = xyToPoint(point[0], point[1]);
+            triangle.moveTo(center.getX(), center.getY()+15);
+            triangle.lineTo(triangle.getCurrentPoint().getX()+5.5, triangle.getCurrentPoint().getY()-30);
+            triangle.lineTo(triangle.getCurrentPoint().getX()-11, triangle.getCurrentPoint().getY());
+            triangle.closePath();
+            canvas.draw(triangle); // Начертить контур маркера
+            canvas.fill(triangle); // Залить внутреннюю область маркера
+        }
     }
+
 
 
     // Метод, обеспечивающий отображение осей координат
