@@ -199,32 +199,29 @@ minY
     protected void paintMarkers(Graphics2D canvas) {
 // Шаг 1 - Установить специальное перо для черчения контуров маркеров
         canvas.setStroke(markerStroke);
-        for (Double[] part : graphicsData)
+// Выбрать красный цвета для контуров маркеров
+        canvas.setColor(Color.RED);
+// Выбрать красный цвет для закрашивания маркеров внутри
+        canvas.setPaint(Color.RED);
+        for (Double[] point : graphicsData) {
 // Если сумма цифр в записи целой часьти значения функции в точке меньше десятси
-            if (sumOfDigits(part[1]) < 10) {
+            if (sumOfDigits(point[1]) < 10) {
                 // Выделяем точку синим цветом
                 // Закрашеваем точку синим цветом
                 canvas.setColor(Color.BLUE);
                 canvas.setPaint(Color.BLUE);
-            } else {
-// Выбрать красный цвета для контуров маркеров
-                canvas.setColor(Color.RED);
-// Выбрать красный цвет для закрашивания маркеров внутри
-                canvas.setPaint(Color.RED);
             }
 // Шаг 2 - Организовать цикл по всем точкам графика
-        for (Double[] point : graphicsData) {
             GeneralPath triangle = new GeneralPath();
             Point2D.Double center = xyToPoint(point[0], point[1]);
-            triangle.moveTo(center.getX(), center.getY()+15);
-            triangle.lineTo(triangle.getCurrentPoint().getX()+5.5, triangle.getCurrentPoint().getY()-30);
-            triangle.lineTo(triangle.getCurrentPoint().getX()-11, triangle.getCurrentPoint().getY());
+            triangle.moveTo(center.getX(), center.getY() + 15);
+            triangle.lineTo(triangle.getCurrentPoint().getX() + 5.5, triangle.getCurrentPoint().getY() - 30);
+            triangle.lineTo(triangle.getCurrentPoint().getX() - 11, triangle.getCurrentPoint().getY());
             triangle.closePath();
             canvas.draw(triangle); // Начертить контур маркера
             canvas.fill(triangle); // Залить внутреннюю область маркера
         }
     }
-
 
 
     // Метод, обеспечивающий отображение осей координат
