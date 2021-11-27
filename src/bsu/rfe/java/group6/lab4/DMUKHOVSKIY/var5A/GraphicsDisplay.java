@@ -41,8 +41,8 @@ public class GraphicsDisplay extends JPanel {
         setBackground(Color.WHITE);
 // Сконструировать необходимые объекты, используемые в рисовании
 // Перо для рисования графика
-        graphicsStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT,
-                BasicStroke.JOIN_ROUND, 10.0f, null, 0.0f);
+        graphicsStroke = new BasicStroke(5.0f, BasicStroke.CAP_BUTT,
+                BasicStroke.JOIN_ROUND, 10.0f, new float[]{4, 1, 2, 1, 1, 1, 2, 1, 4}, 0.0f);
 // Перо для рисования осей координат
         axisStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT,
                 BasicStroke.JOIN_MITER, 10.0f, null, 0.0f);
@@ -83,7 +83,7 @@ public class GraphicsDisplay extends JPanel {
         super.paintComponent(g);
 // Шаг 2 - Если данные графика не загружены (при показе компонента при запуске программы) - ничего не делать
         if (graphicsData == null || graphicsData.length == 0)
-            return ;
+            return;
 // Шаг 3 - Определить минимальное и максимальное значения для координат X и Y
 // Это необходимо для определения области пространства, подлежащей отображению
 // Еѐ верхний левый угол это (minX, maxY) - правый нижний это (maxX, minY)
@@ -184,31 +184,52 @@ minY
         canvas.draw(graphics);
     }
 
+    // Cумма цифр в записи целой части значения функции в точке
+    int sumOfDigits(double x) {
+        int y = (int) x;
+        int sum = 0;
+        while (y != 0) {
+            sum += y % 10;
+            y = y / 10;
+        }
+        return sum;
+    }
+
     // Отображение маркеров точек, по которым рисовался график
     protected void paintMarkers(Graphics2D canvas) {
 // Шаг 1 - Установить специальное перо для черчения контуров маркеров
         canvas.setStroke(markerStroke);
+        for (Double[] part : graphicsData)
+// Если сумма цифр в записи целой часьти значения функции в точке меньше десятси
+            if (sumOfDigits(part[1])<10) {
+                // Выделяем точку синим цветом
+                // Закрашеваем точку синим цветом
+                canvas.setColor(Color.BLUE);
+                canvas.setPaint(Color.BLUE);
+            } else {
 // Выбрать красный цвета для контуров маркеров
-        canvas.setColor(Color.RED);
+                canvas.setColor(Color.RED);
 // Выбрать красный цвет для закрашивания маркеров внутри
-        canvas.setPaint(Color.RED);
+                canvas.setPaint(Color.RED);
 // Шаг 2 - Организовать цикл по всем точкам графика
-        for (Double[] point : graphicsData) {
+                for (Double[] point : graphicsData) {
 // Инициализировать эллипс как объект для представления маркера
-            Ellipse2D.Double marker = new Ellipse2D.Double();
+                    Ellipse2D.Double marker = new Ellipse2D.Double();
 /* Эллипс будет задаваться посредством указания координат
 его центра
 и угла прямоугольника, в который он вписан */
 // Центр - в точке (x,y)
-            Point2D.Double center = xyToPoint(point[0], point[1]);
+                    Point2D.Double center = xyToPoint(point[0], point[1]);
 // Угол прямоугольника - отстоит на расстоянии (3,3)
-            Point2D.Double corner = shiftPoint(center, 3, 3);
+                    Point2D.Double corner = shiftPoint(center, 3, 3);
 // Задать эллипс по центру и диагонали
-            marker.setFrameFromCenter(center, corner);
-            canvas.draw(marker); // Начертить контур маркера
-            canvas.fill(marker); // Залить внутреннюю область маркера
-        }
+                    marker.setFrameFromCenter(center, corner);
+                    canvas.draw(marker); // Начертить контур маркера
+                    canvas.fill(marker); // Залить внутреннюю область маркера
+                }
+            }
     }
+
 
     // Метод, обеспечивающий отображение осей координат
     protected void paintAxis(Graphics2D canvas) {
@@ -284,12 +305,12 @@ minY
     }
 
     /* Метод-помощник, осуществляющий преобразование координат.
-    * Оно необходимо, т.к. верхнему левому углу холста с координатами
-    * (0.0, 0.0) соответствует точка графика с координатами (minX, maxY),
-    где
-    * minX - это самое "левое" значение X, а
-    * maxY - самое "верхнее" значение Y.
-    */
+     * Оно необходимо, т.к. верхнему левому углу холста с координатами
+     * (0.0, 0.0) соответствует точка графика с координатами (minX, maxY),
+     * где
+     * minX - это самое "левое" значение X, а
+     * maxY - самое "верхнее" значение Y.
+     */
     protected Point2D.Double xyToPoint(double x, double y) {
 // Вычисляем смещение X от самой левой точки (minX)
         double deltaX = x - minX;

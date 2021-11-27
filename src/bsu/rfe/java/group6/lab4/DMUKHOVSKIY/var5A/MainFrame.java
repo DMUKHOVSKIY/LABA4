@@ -42,6 +42,10 @@ public class MainFrame extends JFrame {
 // Добавить пункт меню "Файл"
         JMenu fileMenu = new JMenu("Файл");
         menuBar.add(fileMenu);
+// Проверка существования данных в файле
+        if("Coordinates".length()!=0)
+// Установить флаг загруженных данных(координат)
+            fileCoordinates=true;
 // Создать действие по открытию файла
         Action openGraphicsAction = new AbstractAction("Открыть файл с графиком") {
             public void actionPerformed(ActionEvent event) {
@@ -109,16 +113,15 @@ public class MainFrame extends JFrame {
             // Посимвольно записать строку в файл
             for (int i = 0; i < subStr.length; i++) {
                 // Предварительно преобразовать символ в байт
-                out.writeDouble(Byte.parseByte(subStr[i]));
+                out.writeDouble(Double.parseDouble(subStr[i]));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //Установить флаг загруженных данных(координат)
-        fileCoordinates=true;
     }
+
 
     // Считывание данных графика из существующего файла
     protected void openGraphics(File selectedFile) {
